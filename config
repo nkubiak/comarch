@@ -1,3 +1,4 @@
 {
-  "filelist": ["/home/nkubiak/Store.csv", "/home/nkubiak/Sklep.xml"]
+  "filelist": ["/home/nkubiak/tmp/Store.csv", "/home/nkubiak/tmp/Sklep.xml"],
+  "out": "out.json"
 }
