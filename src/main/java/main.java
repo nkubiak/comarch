@@ -13,10 +13,11 @@ public class main {
     public static void main(String[] args){
         files = Tools.loadFileList();
         out = Tools.getOutputPath();
-        System.out.println(files);
-        System.out.println(out);
+        System.out.println("Pliki z danymi: " + files);
+        System.out.println("Plik wyjściowy: " + out);
 
         store = new Store(files);
+        store.printItems();
         Tools.writeOutput(store.getJSONstore(), out);
 
     }

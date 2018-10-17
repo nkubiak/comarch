@@ -1,6 +1,10 @@
 import au.com.bytecode.opencsv.CSVReader;
 import org.json.simple.JSONArray;
-
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +40,6 @@ public class Store {
                     concatenatedLine += l; // Lib ma jakiegoś buga i rozdziela autorów Matrixa (przecinek)
                 }
                 String[] itemElements = concatenatedLine.split(";");
-                System.out.println(concatenatedLine);
                 if(itemElements.length == 5) {
                     simpleAttributes.put("Author", itemElements[3]);
                     simpleAttributes.put("Title", itemElements[4]);
@@ -50,7 +53,49 @@ public class Store {
         }
     }
     private void getItemsFromXml(String path){
-        System.out.println("XML: " + path);
+        NodeList node_items;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(path);
+            Element root = doc.getDocumentElement();
+            node_items = root.getElementsByTagName("produkt");
+
+            for(int i = 0; i < node_items.getLength(); i++){
+                Node node = node_items.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE){
+                    Element element = (Element) node;
+                    int key = Integer.parseInt(element.getAttribute("klucz"));
+                    String type = element.getAttribute("typ");
+                    String identifier = element.getElementsByTagName("identyfikator").item(0).getFirstChild().getNodeValue();
+                    NodeList parameters = (NodeList) element.getElementsByTagName("parametry").item(0);
+
+                    HashMap<String, String> simpleAttributes = new HashMap<String, String>();
+
+                    for (int j = 0; j < parameters.getLength(); j++){
+                        Node parameter = parameters.item(j);
+
+                        if(parameter.getNodeType() == Node.ELEMENT_NODE) {
+                            String k = parameter.getNodeName();
+                            String v = parameter.getTextContent();
+                            simpleAttributes.put(k, v);
+                        }
+                    }
+                    items.add(new Item(type, key, identifier, simpleAttributes));
+                }
+            }
+        }
+        catch (IOException e){
+            System.out.println("Nie znaleziono pliku: " + path);
+        }
+        catch (ParserConfigurationException e){
+            e.printStackTrace();
+        }
+        catch (SAXException e){
+            e.printStackTrace();
+        }
+
     }
 
     public JSONArray getJSONstore(){
@@ -58,5 +103,9 @@ public class Store {
         for (Item i: items) result.add(i.toJSONobject());
         return result;
 
+    }
+
+    public void printItems(){
+        for (Item i: items) System.out.print(i.toString());
     }
 }

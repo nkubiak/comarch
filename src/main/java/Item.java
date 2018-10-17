@@ -27,4 +27,14 @@ public class Item {
 
         return result;
     }
+
+    @Override
+    public String toString(){
+        String result = "";
+        result += key + "\n";
+        result += type + "\n";
+        result += identifier + "\n";
+        result += simpleAttributes.toString() + "\n\n";
+        return result;
+    }
 }
